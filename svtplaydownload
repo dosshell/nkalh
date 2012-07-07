@@ -1,4 +1,0 @@
-#!/bin/bash
-echo " "
-rtmpdump -r $(wget -qO- "$1" | egrep -o rtmp[^,]+ | sort -r | uniq | head -n1) --resume -o "$2.flv"
-exit 0
