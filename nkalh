@@ -1,0 +1,47 @@
+#!/bin/bash
+
+checkURL(){
+	if [ -z $1 ]; then
+		echo "No streams found" >&2
+		exit 254
+	fi
+}
+
+checkHost(){
+	echo "$1" | grep "$2" > /dev/null 2>&1
+}
+
+if [ -z $1 ]; then
+	echo "Usage: $0 url [file]" >&2
+	exit 255
+fi
+
+CONTENT=$(wget -O - -o /dev/null $1)
+
+echo "$CONTENT" | grep "<title>.*</title>" > /dev/null 2>&1
+
+if [ $? -eq 0 ]; then
+	OUT_FILE="$(echo "$CONTENT" | grep "<title>.*</title>" | sed 's/^[ \t]*//;s/[ \t]*$//' | sed -s 's|^<title>\(.*\)</title>$|\1|g').flv"
+fi
+
+if [ -z $2 ]; then
+	if [ -z "$OUT_FILE" ]; then
+		echo "Unable to generate filename, you have to specify one." >&2
+		exit 253
+	fi
+else
+	OUT_FILE=$2
+fi
+
+checkHost $1 "svtplay.se"
+
+if [ $? == 0 ]; then
+	URL=$(echo $CONTENT | egrep -o "rtmp[e]*[^,]+" | sed -s 's/\&quot;//g'  | sort -ru | head -n 1)	
+	checkURL $URL 
+	rtmpdump -r "$URL" --resume -o "$OUT_FILE"
+	exit 0
+fi
+
+
+echo "Unsupported service" >&2
+exit 1
