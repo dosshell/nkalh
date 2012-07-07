@@ -1,4 +1,23 @@
 #!/bin/bash
-echo " "
-rtmpdump -r $(wget -qO- "$1" | egrep -o rtmp[^,]+ | sort -r | uniq | head -n1) --resume -o "$2.flv"
+
+DOMAIN=$(echo $1 | tr '[A-Z]' '[a-z]' | cut -d \. -f2)
+
+if [ "$#" -lt "2" ]
+then
+	OUT="$(wget -qO- "$1" | grep "<title>.*</title>" | cut -c 9- | rev | cut -c 9- | rev | cut -d \| -f1)"
+else
+	OUT=$2
+fi
+
+
+#SVTPLAY
+if [ "$DOMAIN"  = "svtplay" ]
+then
+	echo "svtplay"
+	rtmpdump -r $(wget -qO- "$1"?type=embed | egrep -o "rtmp[^,]+" | sort -ur | head -n1 | cut -d"&" -f1) --resume -o "$OUT.flv"
+
+#OTHER
+else
+	rtmpdump -r $(wget -qO- "$1" | egrep -o "rtmp[^,]+" | sort -ur | head -n1 | cut -d"&" -f1) --resume -o "$OUT.flv"
+fi
 exit 0
