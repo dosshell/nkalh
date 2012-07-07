@@ -1,0 +1,20 @@
+#!/bin/bash
+# svtplay.se program rip-script
+# v.0.2
+#
+# by eyerouge with help from foodoo & ubuntu-se wiki.
+#
+# Worked on all longer svtplay programs as of 5:th of October 2o11.
+# Is not intended to work on short clips as svtplay doesnt use rtmp for them, and they're easier to rip anyhow.
+# Visit http://ubuntu-se.org/wiki/Howtos/Rippa_fr%C3%A5n_SVT_Play for more loving.
+#
+# [info] You need only thre thigs: a) rtmpdump installed, b) the svtplay-URL to the specific program/episode and c) the path and name of the destination file. 
+#
+# Syntax:
+# $ bash ./scriptname URLtoSVTPlayProgramsSite NameAndPathOfDestinationFile
+#
+# Output:
+# NameAndPathOfDestinationFile.flv
+echo " "
+rtmpdump -r $(wget -qO- "$1" | egrep -o rtmp[^,]+ | sort -r | uniq | head -n1) --resume -o "$2.flv"
+exit 0
