@@ -6,7 +6,7 @@ DOMAIN=$(echo $1 | tr '[A-Z]' '[a-z]' | cut -d \. -f2)
 #Fixa fram ett namn till utfilen om det saknas ett, basera det på title
 if [ "$#" -lt "2" ]
 then
-	OUT="$(wget -qO- "$1" | grep "<title>.*</title>" | cut -c 9- | rev | cut -c 9- | rev | cut -d \| -f1)"
+	OUT="$(wget -qO- "$1" | grep "<title>.*</title>" | cut -c 9- | rev | cut -c 9- | rev | cut -d \| -f1 | tr '/' '-')"
 else
 	OUT=$2
 fi
@@ -15,7 +15,6 @@ fi
 #SVTPLAY
 if [ "$DOMAIN"  = "svtplay" ]
 then
-	echo "svtplay"
 	rtmpdump -r $(wget -qO- "$1"?type=embed | egrep -o "rtmp[^,]+" | sort -ur | head -n1 | cut -d"&" -f1) --resume -o "$OUT.flv"
 
 #OTHER, sök efter en lämplig rtmpstream
